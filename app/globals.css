@@ -1,26 +1,96 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --deep-space: #0B0F2A;
+    --celestial-indigo: #1C1F4A;
+    --soft-gold: #C8A75E;
+    --warm-white: #F5F3EE;
+    --muted-indigo: #AAB0D6;
+    --border-alpha: rgba(255, 255, 255, 0.08);
+    --glow-gold: rgba(200, 167, 94, 0.15);
+
+    --background: 237 56% 10%;
+    --foreground: 42 15% 95%;
+    --card: 237 47% 15%;
+    --card-foreground: 42 15% 95%;
+    --popover: 237 56% 10%;
+    --popover-foreground: 42 15% 95%;
+    --primary: 40 33% 58%;
+    --primary-foreground: 237 56% 10%;
+    --secondary: 237 47% 15%;
+    --secondary-foreground: 42 15% 95%;
+    --muted: 237 38% 25%;
+    --muted-foreground: 235 25% 70%;
+    --accent: 40 33% 58%;
+    --accent-foreground: 237 56% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 42 15% 95%;
+    --border: 0 0% 100% / 0.08;
+    --input: 0 0% 100% / 0.08;
+    --ring: 40 33% 58%;
+    --radius: 0.5rem;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-[#0B0F2A] text-[#F5F3EE] font-sans antialiased;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #C8A75E 0%, #E6D5A8 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    background: rgba(28, 31, 74, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glow-gold {
+    box-shadow: 0 4px 24px rgba(200, 167, 94, 0.15);
+  }
+
+  .observatory-gradient {
+    background: linear-gradient(180deg, #0B0F2A 0%, #1C1F4A 100%);
+  }
+
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  .reveal-hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+
+  .reveal-visible {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
 }

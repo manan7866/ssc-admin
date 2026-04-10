@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SSC Admin Dashboard
 
-## Getting Started
+Separate admin dashboard for Sufi Science Center, running on port **3050**.
 
-First, run the development server:
+## Architecture
+
+- **Main App**: `http://localhost:3010` (port 3010)
+- **Admin Dashboard**: `http://localhost:3050` (port 3050)
+
+The admin dashboard proxies all API requests to the main app, maintaining separation while sharing the same backend.
+
+## Quick Start
+
+### Development
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3050/admin`
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production (Docker)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+docker build -t ssc-admin .
+docker run -p 3050:3050 \
+  -e MAIN_APP_URL=http://ssc-app:3010 \
+  -e JWT_SECRET=your-secret \
+  ssc-admin
+```
 
-## Learn More
+## Environment Variables
 
-To learn more about Next.js, take a look at the following resources:
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `MAIN_APP_URL` | URL of the main SSC app | `http://localhost:3010` |
+| `JWT_SECRET` | JWT secret (must match main app) | - |
+| `NEXT_PUBLIC_ADMIN_URL` | Public URL of admin dashboard | `http://localhost:3050` |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API Proxy Pattern
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+All admin API routes (`/api/admin/*`) proxy requests to the main app:
 
-## Deploy on Vercel
+```
+Browser → /api/admin/dashboard → Main App at localhost:3010/api/admin/dashboard
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This keeps the admin dashboard stateless and independent.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Deployment
+
+The admin dashboard has its own CI/CD pipeline:
+
+1. Push to `main` branch
+2. GitHub Actions builds and tests
+3. Docker image pushed to Docker Hub
+4. Deployed to VPS via SSH
+
+See `.github/workflows/docker-deploy-admin.yml`
+
+## Structure
+
+```
+ssc-admin-dasboard/
+├── app/
+│   ├── admin/           # Admin pages (/admin/*)
+│   │   ├── page.tsx     # Dashboard
+│   │   ├── membership/  # Membership applications
+│   │   ├── volunteer/   # Volunteer applications
+│   │   └── ...
+│   ├── api/
+│   │   └── admin/       # Proxy API routes
+│   ├── layout.tsx       # Admin layout with sidebar
+│   └── globals.css      # Shared styles
+├── lib/
+│   ├── api-proxy.ts     # API proxy helper
+│   ├── auth.ts          # Auth utilities
+│   └── utils.ts         # General utilities
+└── Dockerfile
+```

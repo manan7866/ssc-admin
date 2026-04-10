@@ -1,0 +1,257 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import {
+  LayoutDashboard,
+  Users,
+  Heart,
+  FileText,
+  UserCheck,
+  Route,
+  BookOpen,
+  Building2,
+  Star,
+  ScrollText,
+  MessageSquare,
+  ChevronDown,
+  ChevronRight,
+  LogOut,
+  Menu,
+  X,
+  Shield,
+  LifeBuoy,
+  CalendarDays,
+} from 'lucide-react';
+
+interface NavItem {
+  label: string;
+  href?: string;
+  icon: React.ReactNode;
+  children?: NavItem[];
+}
+
+const navItems: NavItem[] = [
+  {
+    label: 'Dashboard',
+    href: '/admin',
+    icon: <LayoutDashboard size={16} />,
+  },
+  {
+    label: 'Applications',
+    icon: <FileText size={16} />,
+    children: [
+      { label: 'Membership', href: '/admin/membership', icon: <UserCheck size={16} /> },
+      { label: 'Volunteer', href: '/admin/volunteer', icon: <Users size={16} /> },
+      { label: 'Pathway', href: '/admin/pathway', icon: <Route size={16} /> },
+      { label: 'Mentorship', href: '/admin/mentorship', icon: <BookOpen size={16} /> },
+      { label: 'Collaboration', href: '/admin/collaboration', icon: <Building2 size={16} /> },
+      { label: 'Conference', href: '/admin/conference', icon: <ScrollText size={16} /> },
+    ],
+  },
+  {
+    label: 'Financial',
+    icon: <Heart size={16} />,
+    children: [
+      { label: 'Donations', href: '/admin/donations', icon: <Heart size={16} /> },
+    ],
+  },
+  {
+    label: 'CMS',
+    icon: <Star size={16} />,
+    children: [
+      { label: 'Saints', href: '/admin/cms/saints', icon: <Star size={16} /> },
+      { label: 'Research Papers', href: '/admin/cms/research', icon: <FileText size={16} /> },
+      { label: 'Dialogues', href: '/admin/cms/dialogues', icon: <MessageSquare size={16} /> },
+      { label: 'Conference Events', href: '/admin/cms/conference', icon: <CalendarDays size={16} /> },
+    ],
+  },
+  {
+    label: 'Support Tickets',
+    href: '/admin/support',
+    icon: <LifeBuoy size={16} />,
+  },
+  {
+    label: 'Users',
+    href: '/admin/users',
+    icon: <Shield size={16} />,
+  },
+];
+
+function NavItemComponent({ item, depth = 0 }: { item: NavItem; depth?: number }) {
+  const pathname = usePathname();
+  const [open, setOpen] = useState(() => {
+    if (!item.children) return false;
+    return item.children.some(c => c.href === pathname || c.children?.some(cc => cc.href === pathname));
+  });
+
+  const isActive = item.href === pathname;
+
+  if (item.children) {
+    return (
+      <div>
+        <button
+          onClick={() => setOpen(!open)}
+          className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+            open ? 'text-[#C8A75E] bg-white/5' : 'text-[#AAB0D6] hover:text-[#F5F3EE] hover:bg-white/5'
+          }`}
+        >
+          <span className="flex items-center gap-2.5">
+            <span className="opacity-70">{item.icon}</span>
+            {item.label}
+          </span>
+          {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+        </button>
+        {open && (
+          <div className="mt-1 ml-3 pl-3 border-l border-white/10 space-y-0.5">
+            {item.children.map(child => (
+              <NavItemComponent key={child.href || child.label} item={child} depth={depth + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      href={item.href!}
+      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+        isActive
+          ? 'text-[#C8A75E] bg-[#C8A75E]/10 font-medium'
+          : 'text-[#AAB0D6] hover:text-[#F5F3EE] hover:bg-white/5'
+      }`}
+    >
+      <span className={isActive ? 'text-[#C8A75E]' : 'opacity-70'}>{item.icon}</span>
+      {item.label}
+    </Link>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [checking, setChecking] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Check auth on mount
+  useEffect(() => {
+    // Skip auth check for login and unauthorized pages
+    if (pathname === '/admin/login' || pathname === '/admin/unauthorized') {
+      setChecking(false);
+      setIsAuthenticated(true);
+      return;
+    }
+
+    // Verify token by fetching dashboard - browser will send cookie automatically
+    fetch('/api/admin/dashboard', { credentials: 'include' })
+      .then(res => {
+        if (res.ok) {
+          setIsAuthenticated(true);
+        } else {
+          console.log('[layout] Dashboard API returned:', res.status);
+          router.push('/admin/login?redirect=' + encodeURIComponent(pathname));
+        }
+      })
+      .catch((err) => {
+        console.error('[layout] Dashboard API error:', err);
+        router.push('/admin/login?redirect=' + encodeURIComponent(pathname));
+      })
+      .finally(() => setChecking(false));
+  }, [router, pathname]);
+
+  if (pathname === '/admin/login' || pathname === '/admin/unauthorized') {
+    return <>{children}</>;
+  }
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-[#080A18] flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-[#C8A75E] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  async function handleLogout() {
+    setLoggingOut(true);
+    try {
+      await fetch('/api/admin/session', { method: 'DELETE' });
+      router.push('/admin/login');
+    } catch {
+      setLoggingOut(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-[#080A18] flex">
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-20 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed top-0 left-0 h-full w-60 bg-[#0B0F2A] border-r border-white/10 z-30 flex flex-col transition-transform duration-300 lg:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
+          <Link href="/" className="flex items-center gap-2.5 group" title="Back to website">
+            <img src="/SSC_LOGO_UPDATED.png" alt="SSC Logo" className="h-8 w-auto opacity-90 group-hover:opacity-100 transition-opacity" />
+            <div>
+              <div className="text-[#C8A75E] font-semibold text-xs tracking-wide leading-tight group-hover:text-[#D9BB78] transition-colors">SSC Admin</div>
+              <div className="text-[#AAB0D6] text-[10px] mt-0.5 group-hover:text-[#C8C8D6] transition-colors">Visit website</div>
+            </div>
+          </Link>
+          <button
+            className="lg:hidden text-[#AAB0D6] hover:text-[#F5F3EE]"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-0.5">
+          {navItems.map(item => (
+            <NavItemComponent key={item.href || item.label} item={item} />
+          ))}
+        </nav>
+
+        <div className="border-t border-white/10 p-3">
+          <button
+            onClick={handleLogout}
+            disabled={loggingOut}
+            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm text-[#AAB0D6] hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+          >
+            <LogOut size={16} />
+            {loggingOut ? 'Signing out...' : 'Sign out'}
+          </button>
+        </div>
+      </aside>
+
+      <div className="flex-1 lg:ml-60 flex flex-col min-h-screen">
+        <header className="sticky top-0 z-10 bg-[#080A18]/90 backdrop-blur border-b border-white/10 px-4 py-3 flex items-center gap-3 lg:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="text-[#AAB0D6] hover:text-[#F5F3EE]"
+          >
+            <Menu size={20} />
+          </button>
+          <span className="text-[#C8A75E] font-semibold text-sm">SSC Admin</span>
+        </header>
+
+        <main className="flex-1 p-6">
+          {children}
+        </main>
+      </div>
+    </div>
+  );
+}
