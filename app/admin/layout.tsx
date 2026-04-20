@@ -68,6 +68,11 @@ const navItems: NavItem[] = [
     ],
   },
   {
+    label: 'Reflections',
+    href: '/admin/reflections',
+    icon: <ScrollText size={16} />,
+  },
+  {
     label: 'Support Tickets',
     href: '/admin/support',
     icon: <LifeBuoy size={16} />,
