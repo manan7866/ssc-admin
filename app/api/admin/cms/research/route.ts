@@ -4,10 +4,12 @@ import { getAdminTokenFromRequest } from '@/lib/auth';
 
 export async function GET(req: NextRequest) {
   const admin = getAdminTokenFromRequest(req);
+
   if (!admin) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
   const cookieHeader = getCookieHeader(req);
-  const result = await proxyToMainApp('/api/admin/cms/research', {
+  const url = `/api/admin/cms/research${req.nextUrl.search}`;
+  const result = await proxyToMainApp(url, {
     method: 'GET',
     cookie: cookieHeader,
   });

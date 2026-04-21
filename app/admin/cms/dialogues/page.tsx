@@ -4,8 +4,10 @@ import { useState, useEffect, useCallback } from 'react';
 import { MessageSquare, Plus, Search, CreditCard as Edit2, Trash2, X, Save, RefreshCw, ChevronDown, ChevronRight } from 'lucide-react';
 
 interface Dialogue {
+  slug : string;
   id: string;
   title: string;
+  subtitle: string | null;
   description: string | null;
   type: string | null;
   host: string | null;
@@ -13,15 +15,30 @@ interface Dialogue {
   is_published: boolean;
   view_count: number;
   created_at: string;
+  difficulty_level: string | null;
+  total_episodes: number;
+  total_duration_minutes: number;
+  participants: string[];
+  is_featured: boolean;
 }
 
 const emptyForm = (): Partial<Dialogue> => ({
   title: '',
+  subtitle: '',
   description: '',
   type: 'series',
   host: '',
   is_published: false,
+  difficulty_level: 'beginner',
+  total_episodes: 0,
+  total_duration_minutes: 0,
+  participants: [],
+  is_featured: false,
 });
+
+function generateSlug(title: string) {
+  return title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+}
 
 const TYPES = ['series', 'hard_inquiry', 'insight_interview', 'applied_practice'];
 
@@ -37,17 +54,17 @@ export default function DialoguesAdminPage() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 20;
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (pageNum: number) => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) });
+    const params = new URLSearchParams({ page: String(pageNum), pageSize: String(PAGE_SIZE) });
     if (search.trim()) params.set('search', search.trim());
     const res = await fetch(`/api/admin/cms/dialogues?${params}`);
     const data = await res.json();
     setDialogues(data.items ?? []);
     setLoading(false);
-  }, [search, page]);
+  }, [search]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(0); }, []);
 
   function openCreate() {
     setEditing(null);
@@ -55,7 +72,7 @@ export default function DialoguesAdminPage() {
     setModalOpen(true);
   }
 
-  function openEdit(d: Dialogue) {
+function openEdit(d: Dialogue) {
     setEditing(d);
     setForm({ ...d });
     setModalOpen(true);
@@ -63,13 +80,21 @@ export default function DialoguesAdminPage() {
 
   async function handleSave() {
     setSaving(true);
+    const slug = form.slug || generateSlug(form.title || '');
     const payload = {
       title: form.title,
+      slug,
+      subtitle: form.subtitle || null,
       description: form.description || null,
       type: form.type || null,
       host: form.host || null,
       is_published: form.is_published ?? false,
       published_at: form.is_published ? (form.published_at ?? new Date().toISOString()) : null,
+      difficulty_level: form.difficulty_level || null,
+      total_episodes: form.total_episodes ?? 0,
+      total_duration_minutes: form.total_duration_minutes ?? 0,
+      participants: form.participants || [],
+      is_featured: form.is_featured ?? false,
     };
 
     await fetch('/api/admin/cms/dialogues', {
@@ -78,7 +103,7 @@ export default function DialoguesAdminPage() {
       body: JSON.stringify(editing ? { id: editing.id, ...payload } : payload),
     });
     setModalOpen(false);
-    await load();
+    await load(page);
     setSaving(false);
   }
 
@@ -90,7 +115,7 @@ export default function DialoguesAdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    await load();
+    await load(page);
     setDeleting(null);
   }
 
@@ -104,7 +129,7 @@ export default function DialoguesAdminPage() {
         published_at: !d.is_published ? new Date().toISOString() : null,
       }),
     });
-    await load();
+    await load(page);
   }
 
   return (
@@ -118,7 +143,7 @@ export default function DialoguesAdminPage() {
           <p className="text-[#AAB0D6] text-sm mt-1">Manage dialogue series, episodes and transcripts</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="text-[#AAB0D6] hover:text-[#F5F3EE] transition-colors p-2">
+          <button onClick={() => load(page)} className="text-[#AAB0D6] hover:text-[#F5F3EE] transition-colors p-2">
             <RefreshCw size={15} />
           </button>
           <button
@@ -135,7 +160,7 @@ export default function DialoguesAdminPage() {
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAB0D6]" />
         <input
           value={search}
-          onChange={e => { setSearch(e.target.value); setPage(0); }}
+          onChange={e => { const newSearch = e.target.value; setSearch(newSearch); setPage(0); load(0); }}
           placeholder="Search by title..."
           className="w-full bg-[#0B0F2A] border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-sm text-[#F5F3EE] placeholder-[#AAB0D6]/50 focus:outline-none focus:border-[#C8A75E]/50"
         />
@@ -212,14 +237,14 @@ export default function DialoguesAdminPage() {
             <span className="text-xs text-[#AAB0D6]">Page {page + 1}</span>
             <div className="flex gap-2">
               <button
-                onClick={() => setPage(p => Math.max(0, p - 1))}
+                onClick={() => { const newPage = Math.max(0, page - 1); setPage(newPage); load(newPage); }}
                 disabled={page === 0}
                 className="px-3 py-1 text-xs text-[#AAB0D6] bg-white/5 rounded-lg disabled:opacity-30 hover:bg-white/10"
               >
                 Previous
               </button>
               <button
-                onClick={() => setPage(p => p + 1)}
+                onClick={() => { const newPage = page + 1; setPage(newPage); load(newPage); }}
                 disabled={dialogues.length < PAGE_SIZE}
                 className="px-3 py-1 text-xs text-[#AAB0D6] bg-white/5 rounded-lg disabled:opacity-30 hover:bg-white/10"
               >
@@ -265,6 +290,66 @@ export default function DialoguesAdminPage() {
                 <input
                   value={form.host ?? ''}
                   onChange={e => setForm(f => ({ ...f, host: e.target.value }))}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
+                />
+              </div>
+              <div>
+                <label className="block text-xs text-[#AAB0D6] mb-1.5">Subtitle</label>
+                <input
+                  value={form.subtitle ?? ''}
+                  onChange={e => setForm(f => ({ ...f, subtitle: e.target.value }))}
+                  className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-[#AAB0D6] mb-1.5">Difficulty Level</label>
+                  <select
+                    value={form.difficulty_level ?? 'beginner'}
+                    onChange={e => setForm(f => ({ ...f, difficulty_level: e.target.value }))}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
+                  >
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="advanced">Advanced</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs text-[#AAB0D6] mb-1.5">Total Episodes</label>
+                  <input
+                    type="number"
+                    value={form.total_episodes ?? 0}
+                    onChange={e => setForm(f => ({ ...f, total_episodes: Number(e.target.value) }))}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs text-[#AAB0D6] mb-1.5">Total Duration (mins)</label>
+                  <input
+                    type="number"
+                    value={form.total_duration_minutes ?? 0}
+                    onChange={e => setForm(f => ({ ...f, total_duration_minutes: Number(e.target.value) }))}
+                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-[#AAB0D6] mb-1.5">Featured</label>
+                  <input
+                    type="checkbox"
+                    checked={form.is_featured ?? false}
+                    onChange={e => setForm(f => ({ ...f, is_featured: e.target.checked }))}
+                    className="w-4 h-4 rounded"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-xs text-[#AAB0D6] mb-1.5">Participants (comma-separated)</label>
+                <input
+                  value={form.participants?.join(', ') ?? ''}
+                  onChange={e => setForm(f => ({ ...f, participants: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                  placeholder="Name 1, Name 2"
                   className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
                 />
               </div>

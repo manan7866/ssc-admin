@@ -40,17 +40,17 @@ export default function ResearchAdminPage() {
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 20;
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (pageNum: number) => {
     setLoading(true);
-    const params = new URLSearchParams({ page: String(page), pageSize: String(PAGE_SIZE) });
+    const params = new URLSearchParams({ page: String(pageNum), pageSize: String(PAGE_SIZE) });
     if (search.trim()) params.set('search', search.trim());
     const res = await fetch(`/api/admin/cms/research?${params}`);
     const data = await res.json();
     setPapers(data.items ?? []);
     setLoading(false);
-  }, [search, page]);
+  }, [search]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => { load(0); }, []);
 
   function openCreate() {
     setEditing(null);
@@ -86,7 +86,7 @@ export default function ResearchAdminPage() {
       body: JSON.stringify(editing ? { id: editing.id, ...payload } : payload),
     });
     setModalOpen(false);
-    await load();
+    await load(page);
     setSaving(false);
   }
 
@@ -98,7 +98,7 @@ export default function ResearchAdminPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id }),
     });
-    await load();
+    await load(page);
     setDeleting(null);
   }
 
@@ -113,7 +113,7 @@ export default function ResearchAdminPage() {
           <p className="text-[#AAB0D6] text-sm mt-1">Manage publications and academic content</p>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={load} className="text-[#AAB0D6] hover:text-[#F5F3EE] transition-colors p-2">
+          <button onClick={() => load(page)} className="text-[#AAB0D6] hover:text-[#F5F3EE] transition-colors p-2">
             <RefreshCw size={15} />
           </button>
           <button
@@ -130,7 +130,7 @@ export default function ResearchAdminPage() {
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#AAB0D6]" />
         <input
           value={search}
-          onChange={e => { setSearch(e.target.value); setPage(0); }}
+          onChange={e => { const newSearch = e.target.value; setSearch(newSearch); setPage(0); load(0); }}
           placeholder="Search by title..."
           className="w-full bg-[#0B0F2A] border border-white/10 rounded-lg pl-9 pr-4 py-2.5 text-sm text-[#F5F3EE] placeholder-[#AAB0D6]/50 focus:outline-none focus:border-[#C8A75E]/50"
         />
@@ -208,14 +208,14 @@ export default function ResearchAdminPage() {
             <span className="text-xs text-[#AAB0D6]">Page {page + 1}</span>
             <div className="flex gap-2">
               <button
-                onClick={() => setPage(p => Math.max(0, p - 1))}
+                onClick={() => { const newPage = Math.max(0, page - 1); setPage(newPage); load(newPage); }}
                 disabled={page === 0}
                 className="px-3 py-1 text-xs text-[#AAB0D6] bg-white/5 rounded-lg disabled:opacity-30 hover:bg-white/10"
               >
                 Previous
               </button>
               <button
-                onClick={() => setPage(p => p + 1)}
+                onClick={() => { const newPage = page + 1; setPage(newPage); load(newPage); }}
                 disabled={papers.length < PAGE_SIZE}
                 className="px-3 py-1 text-xs text-[#AAB0D6] bg-white/5 rounded-lg disabled:opacity-30 hover:bg-white/10"
               >

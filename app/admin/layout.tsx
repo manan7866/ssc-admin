@@ -23,6 +23,15 @@ import {
   Shield,
   LifeBuoy,
   CalendarDays,
+  GitBranch,
+  Lightbulb,
+  Globe,
+  Clock,
+  TrendingUp,
+  Sparkles,
+  Compass,
+  AlertTriangle,
+  Mic,
 } from 'lucide-react';
 
 interface NavItem {
@@ -61,10 +70,27 @@ const navItems: NavItem[] = [
     label: 'CMS',
     icon: <Star size={16} />,
     children: [
+      { label: 'Foundations', href: '/admin/cms/lineages', icon: <GitBranch size={16} /> },
+      { label: 'Themes', href: '/admin/cms/themes', icon: <Lightbulb size={16} /> },
+      { label: 'Regions', href: '/admin/cms/regions', icon: <Globe size={16} /> },
+      { label: 'Historical Periods', href: '/admin/cms/periods', icon: <Clock size={16} /> },
       { label: 'Saints', href: '/admin/cms/saints', icon: <Star size={16} /> },
       { label: 'Research Papers', href: '/admin/cms/research', icon: <FileText size={16} /> },
       { label: 'Dialogues', href: '/admin/cms/dialogues', icon: <MessageSquare size={16} /> },
       { label: 'Conference Events', href: '/admin/cms/conference', icon: <CalendarDays size={16} /> },
+      { label: 'Inner Development', href: '/admin/cms/stages', icon: <TrendingUp size={16} />, children: [
+        { label: 'Stages', href: '/admin/cms/stages', icon: <TrendingUp size={16} /> },
+        { label: 'Practices', href: '/admin/cms/practices', icon: <Sparkles size={16} /> },
+        { label: 'Emotional Intelligence', href: '/admin/cms/emotional', icon: <Heart size={16} /> },
+        { label: 'Pathways', href: '/admin/cms/guidance', icon: <Compass size={16} /> },
+        { label: 'Study Circles', href: '/admin/cms/circles', icon: <Users size={16} /> },
+        { label: 'Mentorship', href: '/admin/cms/mentorship', icon: <BookOpen size={16} /> },
+      ]},
+      { label: 'Inner Dialogues', href: '/admin/cms/hard-inquiry', icon: <AlertTriangle size={16} />, children: [
+        { label: 'Hard Inquiry', href: '/admin/cms/hard-inquiry', icon: <AlertTriangle size={16} /> },
+        { label: 'Interviews', href: '/admin/cms/insight-interviews', icon: <Mic size={16} /> },
+        { label: 'Applied Practices', href: '/admin/cms/applied-practices', icon: <Lightbulb size={16} /> },
+      ]},
     ],
   },
   {

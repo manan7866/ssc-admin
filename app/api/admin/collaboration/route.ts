@@ -7,7 +7,8 @@ export async function GET(req: NextRequest) {
   if (!admin) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
   const cookieHeader = getCookieHeader(req);
-  const result = await proxyToMainApp('/api/admin/collaboration', {
+  const url = `/api/admin/collaboration${req.nextUrl.search}`;
+  const result = await proxyToMainApp(url, {
     method: 'GET',
     cookie: cookieHeader,
   });

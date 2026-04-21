@@ -33,7 +33,7 @@ export async function proxyToMainApp(
     }
   }
 
-  const url = `${process.env.MAIN_APP_URL || 'http://localhost:3000'}${path}`;
+  const url = `${MAIN_APP_URL}${path}`;
   console.log(`[proxy] Forwarding ${method} ${path} to ${url}`);
 
   try {
