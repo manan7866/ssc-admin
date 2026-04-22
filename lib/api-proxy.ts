@@ -3,7 +3,7 @@
  * Forwards requests to the main SSC app running on localhost:3010
  */
 
-const MAIN_APP_URL = process.env.MAIN_APP_URL || 'http://localhost:3010';
+const MAIN_APP_URL = process.env.MAIN_APP_URL || 'http://ssc-app:3010';
 
 export async function proxyToMainApp(
   path: string,

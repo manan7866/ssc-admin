@@ -33,7 +33,7 @@ export function getCookieHeader(req: NextRequest): string | null {
 export async function verifySessionWithMainApp(cookieHeader: string | null): Promise<boolean> {
   if (!cookieHeader) return false;
 
-  const mainAppUrl = process.env.MAIN_APP_URL || 'http://localhost:3010';
+  const mainAppUrl = process.env.MAIN_APP_URL || 'http://ssc-app:3010';
   try {
     const response = await fetch(`${mainAppUrl}/api/admin/dashboard`, {
       method: 'GET',

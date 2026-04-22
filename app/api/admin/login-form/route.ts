@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const MAIN_APP_URL = process.env.MAIN_APP_URL || 'http://localhost:3000';
+const MAIN_APP_URL = process.env.MAIN_APP_URL || 'http://ssc-app:3010';
 const SAFE_REDIRECT_RE = /^\/admin(\/[a-zA-Z0-9\-_/]*)?$/;
 
 export async function POST(req: NextRequest) {
