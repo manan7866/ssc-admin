@@ -312,12 +312,12 @@ export default function ThemesAdminPage() {
                     onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
                   >
-                    <option value="metaphysical">Metaphysical</option>
-                    <option value="psychology">Psychology</option>
-                    <option value="devotional">Devotional</option>
-                    <option value="transmission">Transmission</option>
-                    <option value="intellectual">Intellectual</option>
-                    <option value="social">Social</option>
+                    <option className='bg-[#0B0F2A]' value="metaphysical">Metaphysical</option>
+                    <option className='bg-[#0B0F2A]'  value="psychology">Psychology</option>
+                    <option className='bg-[#0B0F2A]'  value="devotional">Devotional</option>
+                    <option className='bg-[#0B0F2A]'  value="transmission">Transmission</option>
+                    <option className='bg-[#0B0F2A]'  value="intellectual">Intellectual</option>
+                    <option className='bg-[#0B0F2A]'  value="social">Social</option>
                   </select>
                 </div>
                 <div>

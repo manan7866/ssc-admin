@@ -332,10 +332,10 @@ export default function PracticesAdminPage() {
                     onChange={e => setForm(f => ({ ...f, difficulty_level: e.target.value }))}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
                   >
-                    <option value="">Select level</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
+                    <option className='bg-[#0B0F2A]'  value="">Select level</option>
+                    <option className='bg-[#0B0F2A]'  value="beginner">Beginner</option>
+                    <option className='bg-[#0B0F2A]'  value="intermediate">Intermediate</option>
+                    <option className='bg-[#0B0F2A]'  value="advanced">Advanced</option>
                   </select>
                 </div>
                 <div>

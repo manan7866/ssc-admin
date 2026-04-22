@@ -310,11 +310,11 @@ export default function RegionsAdminPage() {
                   <select
                     value={form.level ?? 0}
                     onChange={e => setForm(f => ({ ...f, level: Number(e.target.value) }))}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
+                    className="w-full bg-white/5  border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
                   >
-                    <option value={0}>Region</option>
-                    <option value={1}>Sub-region</option>
-                    <option value={2}>Sub-sub-region</option>
+                    <option className='bg-[#0B0F2A]' value={0}>Region</option>
+                    <option className='bg-[#0B0F2A]' value={1}>Sub-region</option>
+                    <option className='bg-[#0B0F2A]' value={2}>Sub-sub-region</option>
                   </select>
                 </div>
                 <div>

@@ -335,8 +335,8 @@ export default function StagesAdminPage() {
                     onChange={e => setForm(f => ({ ...f, category: e.target.value }))}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
                   >
-                    <option value="maqam">Maqam</option>
-                    <option value="hal">Hal</option>
+                    <option className='bg-[#0B0F2A]'  value="maqam">Maqam</option>
+                    <option className='bg-[#0B0F2A]'  value="hal">Hal</option>
                   </select>
                 </div>
                 <div>

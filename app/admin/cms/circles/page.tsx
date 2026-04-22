@@ -410,9 +410,9 @@ export default function CirclesAdminPage() {
                     onChange={e => setForm(f => ({ ...f, meeting_format: e.target.value }))}
                     className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm text-[#F5F3EE] focus:outline-none focus:border-[#C8A75E]/50"
                   >
-                    <option value="online">Online</option>
-                    <option value="in-person">In Person</option>
-                    <option value="hybrid">Hybrid</option>
+                    <option className='bg-[#0B0F2A]'  value="online">Online</option>
+                    <option className='bg-[#0B0F2A]'  value="in-person">In Person</option>
+                    <option className='bg-[#0B0F2A]'  value="hybrid">Hybrid</option>
                   </select>
                 </div>
                 <div>
