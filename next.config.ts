@@ -14,7 +14,7 @@ const nextConfig: NextConfig = {
     ],
   },
   env: {
-    NEXT_PUBLIC_ADMIN_URL: process.env.NEXT_PUBLIC_ADMIN_URL || 'http://localhost:3050',
+    NEXT_PUBLIC_ADMIN_URL: process.env.NEXT_PUBLIC_ADMIN_URL || 'https://admin.sufisciencecenter.info',
     MAIN_APP_URL: process.env.MAIN_APP_URL || 'http://localhost:3010',
   },
 };
