@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     const redirectPath = (formData.get('redirect') as string) || '/admin';
 
     if (!email || !password) {
-      const loginUrl = new URL('/admin/login', req.url);
+      const loginUrl = new URL('/admin/login', process.env.NEXT_PUBLIC_ADMIN_URL);
       loginUrl.searchParams.set('error', 'Invalid credentials.');
       return NextResponse.redirect(loginUrl);
     }
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     console.log('[login-form] Token length:', token.length);
 
     // Set cookie and redirect
-    const res = NextResponse.redirect(new URL(safeRedirect, req.url));
+    const res = NextResponse.redirect(new URL(safeRedirect, process.env.NEXT_PUBLIC_ADMIN_URL));
     const cookieValue = `admin_token=${token}; Path=/; Max-Age=86400; SameSite=Strict`;
     console.log('[login-form] Setting cookie:', cookieValue.substring(0, 50) + '...');
     res.headers.set('Set-Cookie', cookieValue);
