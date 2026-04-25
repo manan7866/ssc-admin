@@ -120,7 +120,7 @@ export default function AdminDonationsPage() {
 
         <div className="flex items-center gap-2 mb-6">
           <Filter className="h-4 w-4 text-[#AAB0D6]/40" />
-          {(['all', 'paid', 'pending', 'failed'] as const).map(s => (
+          {(['all', 'completed', 'pending', 'failed', 'refunded'] as const).map(s => (
             <button key={s} onClick={() => setStatusFilter(s)} className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all capitalize ${statusFilter === s ? 'bg-[#C8A75E]/20 border border-[#C8A75E]/30 text-[#C8A75E]' : 'border border-white/8 text-[#AAB0D6]/60 hover:text-[#AAB0D6]'}`}>{s}</button>
           ))}
         </div>
