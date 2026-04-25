@@ -64,6 +64,7 @@ const navItems: NavItem[] = [
     icon: <Heart size={16} />,
     children: [
       { label: 'Donations', href: '/admin/donations', icon: <Heart size={16} /> },
+      { label: 'Subscriptions', href: '/admin/subscriptions', icon: <TrendingUp size={16} /> },
     ],
   },
   {

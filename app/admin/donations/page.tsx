@@ -24,9 +24,11 @@ interface Donation {
 }
 
 const STATUS_META: Record<string, { label: string; icon: React.ReactNode; color: string; bg: string }> = {
+  completed: { label: 'Completed', icon: <CheckCircle2 className="h-3.5 w-3.5" />, color: 'text-[#27AE60]', bg: 'bg-[#27AE60]/10 border-[#27AE60]/20' },
   paid: { label: 'Paid', icon: <CheckCircle2 className="h-3.5 w-3.5" />, color: 'text-[#27AE60]', bg: 'bg-[#27AE60]/10 border-[#27AE60]/20' },
   pending: { label: 'Pending', icon: <Clock className="h-3.5 w-3.5" />, color: 'text-[#C8A75E]', bg: 'bg-[#C8A75E]/10 border-[#C8A75E]/20' },
   failed: { label: 'Failed', icon: <XCircle className="h-3.5 w-3.5" />, color: 'text-[#E07070]', bg: 'bg-[#E07070]/10 border-[#E07070]/20' },
+  refunded: { label: 'Refunded', icon: <XCircle className="h-3.5 w-3.5" />, color: 'text-[#E07070]', bg: 'bg-[#E07070]/10 border-[#E07070]/20' },
 };
 
 function formatAmount(amount: number, currency: string) {
@@ -47,7 +49,7 @@ function toCSV(rows: Donation[]): string {
 export default function AdminDonationsPage() {
   const [donations, setDonations] = useState<Donation[]>([]);
   const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState<'all' | 'paid' | 'pending' | 'failed'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'pending' | 'failed' | 'refunded'>('all');
   const [expanded, setExpanded] = useState<string | null>(null);
 
   const fetchDonations = useCallback(async () => {
@@ -63,8 +65,8 @@ export default function AdminDonationsPage() {
 
   useEffect(() => { fetchDonations(); }, [fetchDonations]);
 
-  const filtered = donations.filter(d => statusFilter === 'all' || d.status === statusFilter);
-  const totalPaid = donations.filter(d => d.status === 'paid').reduce((sum, d) => sum + d.amount, 0);
+  const filtered = donations.filter(d => statusFilter === 'all' || d.status === statusFilter || (statusFilter === 'completed' && d.status === 'paid'));
+  const totalPaid = donations.filter(d => d.status === 'paid' || d.status === 'completed').reduce((sum, d) => sum + d.amount, 0);
 
   function downloadCSV() {
     const csv = toCSV(filtered);
