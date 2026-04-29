@@ -57,6 +57,7 @@ const navItems: NavItem[] = [
       { label: 'Mentorship', href: '/admin/mentorship', icon: <BookOpen size={16} /> },
       { label: 'Collaboration', href: '/admin/collaboration', icon: <Building2 size={16} /> },
       { label: 'Conference', href: '/admin/conference', icon: <ScrollText size={16} /> },
+      { label: 'Insight Interviews', href: '/admin/insight-interviews', icon: <Mic size={16} /> },
     ],
   },
   {

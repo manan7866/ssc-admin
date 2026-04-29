@@ -16,7 +16,7 @@ interface Submission {
   submissionType: string;
   title: string;
   abstract: string;
-  keywords: string[];
+  keywords: string[] | null;
   presenterName: string;
   presenterEmail: string;
   presenterAffiliation: string;
@@ -30,6 +30,11 @@ interface Submission {
   reviewedAt: string | null;
   submittedAt: string;
   updatedAt: string;
+  conference?: {
+    id: string;
+    title: string;
+    location_detail: string | null;
+  } | null;
 }
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; dot: string }> = {
@@ -107,10 +112,10 @@ function ReviewPanel({
           <p className="text-xs text-[#AAB0D6] leading-relaxed">{submission.abstract}</p>
         </div>
 
-        {submission.keywords && submission.keywords.length > 0 && (
+        {submission.keywords && Array.isArray(submission.keywords) && submission.keywords.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {submission.keywords.map((kw) => (
-              <span key={kw} className="text-[10px] px-2 py-0.5 rounded-full bg-[#C8A75E]/8 border border-[#C8A75E]/15 text-[#C8A75E]">
+            {submission.keywords.map((kw , idx) => (
+              <span key={idx} className="text-[10px] px-2 py-0.5 rounded-full bg-[#C8A75E]/8 border border-[#C8A75E]/15 text-[#C8A75E]">
                 {kw}
               </span>
             ))}
