@@ -41,7 +41,7 @@ interface NavItem {
   children?: NavItem[];
 }
 
-const navItems: NavItem[] = [
+const ALL_NAV_ITEMS: NavItem[] = [
   {
     label: 'Dashboard',
     href: '/admin',
@@ -58,6 +58,7 @@ const navItems: NavItem[] = [
       { label: 'Collaboration', href: '/admin/collaboration', icon: <Building2 size={16} /> },
       { label: 'Conference', href: '/admin/conference', icon: <ScrollText size={16} /> },
       { label: 'Insight Interviews', href: '/admin/insight-interviews', icon: <Mic size={16} /> },
+      { label: 'Conference Events', href: '/admin/conference-event', icon: <CalendarDays size={16} /> },
     ],
   },
   {
@@ -79,7 +80,6 @@ const navItems: NavItem[] = [
       { label: 'Saints', href: '/admin/cms/saints', icon: <Star size={16} /> },
       { label: 'Research Papers', href: '/admin/cms/research', icon: <FileText size={16} /> },
       { label: 'Dialogues', href: '/admin/cms/dialogues', icon: <MessageSquare size={16} /> },
-      { label: 'Conference Events', href: '/admin/cms/conference', icon: <CalendarDays size={16} /> },
       { label: 'Inner Development', href: '/admin/cms/stages', icon: <TrendingUp size={16} />, children: [
         { label: 'Stages', href: '/admin/cms/stages', icon: <TrendingUp size={16} /> },
         { label: 'Practices', href: '/admin/cms/practices', icon: <Sparkles size={16} /> },
@@ -111,6 +111,76 @@ const navItems: NavItem[] = [
     icon: <Shield size={16} />,
   },
 ];
+
+const APPLICATION_PAGE_KEYS: Record<string, string> = {
+  '/admin/membership': 'membership',
+  '/admin/volunteer': 'volunteer',
+  '/admin/pathway': 'pathway',
+  '/admin/mentorship': 'mentorship',
+  '/admin/collaboration': 'collaboration',
+  '/admin/conference': 'conference',
+  '/admin/insight-interviews': 'insight-interviews',
+  '/admin/conference-event': 'conference-event',
+};
+
+function getFilteredNavItems(role: string, permissions: string[]): NavItem[] {
+  if (role === 'admin') return ALL_NAV_ITEMS;
+
+  const filtered: NavItem[] = [];
+
+  filtered.push(ALL_NAV_ITEMS[0]);
+
+  if (role === 'application_handler') {
+    const appSection = ALL_NAV_ITEMS.find(item => item.label === 'Applications');
+    if (appSection?.children) {
+      const allowedChildren = appSection.children.filter(child => {
+        if (!child.href) return true;
+        const key = APPLICATION_PAGE_KEYS[child.href];
+        if (!key) return false;
+        const mappedKey = key === 'pathway' ? 'pathway' :
+                         key === 'insight-interviews' ? 'insight-interviews' :
+                         key;
+        return permissions.includes(mappedKey);
+      });
+      if (allowedChildren.length > 0) {
+        filtered.push({ ...appSection, children: allowedChildren });
+      }
+    }
+  }
+
+  if (role === 'finance_handler') {
+    const financeSection = ALL_NAV_ITEMS.find(item => item.label === 'Financial');
+    if (financeSection) filtered.push(financeSection);
+  }
+
+  if (role === 'cms_handler') {
+    const cmsSection = ALL_NAV_ITEMS.find(item => item.label === 'CMS');
+    if (cmsSection) filtered.push(cmsSection);
+  }
+
+  return filtered;
+}
+
+function hasAccessToPath(pathname: string, role: string, permissions: string[]): boolean {
+  if (role === 'admin') return true;
+  if (pathname === '/admin' || pathname === '/admin/') return true;
+
+  if (role === 'application_handler') {
+    const key = APPLICATION_PAGE_KEYS[pathname];
+    if (key) return permissions.includes(key);
+    return false;
+  }
+
+  if (role === 'finance_handler') {
+    return pathname.startsWith('/admin/donations') || pathname.startsWith('/admin/subscriptions');
+  }
+
+  if (role === 'cms_handler') {
+    return pathname.startsWith('/admin/cms');
+  }
+
+  return false;
+}
 
 function NavItemComponent({ item, depth = 0 }: { item: NavItem; depth?: number }) {
   const pathname = usePathname();
@@ -169,21 +239,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [loggingOut, setLoggingOut] = useState(false);
   const [checking, setChecking] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userRole, setUserRole] = useState('');
+  const [userPermissions, setUserPermissions] = useState<string[]>([]);
 
-  // Check auth on mount
   useEffect(() => {
-    // Skip auth check for login and unauthorized pages
     if (pathname === '/admin/login' || pathname === '/admin/unauthorized') {
       setChecking(false);
       setIsAuthenticated(true);
       return;
     }
 
-    // Verify token by fetching dashboard - browser will send cookie automatically
     fetch('/api/admin/dashboard', { credentials: 'include' })
       .then(res => {
         if (res.ok) {
-          setIsAuthenticated(true);
+          return res.json().then(data => {
+            setIsAuthenticated(true);
+            if (data.userRole) setUserRole(data.userRole);
+            if (data.userPermissions) setUserPermissions(data.userPermissions);
+          });
         } else {
           console.log('[layout] Dashboard API returned:', res.status);
           router.push('/admin/login?redirect=' + encodeURIComponent(pathname));
@@ -195,6 +268,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       })
       .finally(() => setChecking(false));
   }, [router, pathname]);
+
+  useEffect(() => {
+    if (userRole && !hasAccessToPath(pathname, userRole, userPermissions)) {
+      if (pathname !== '/admin/unauthorized') {
+        router.push('/admin/unauthorized');
+      }
+    }
+  }, [pathname, userRole, userPermissions, router]);
 
   if (pathname === '/admin/login' || pathname === '/admin/unauthorized') {
     return <>{children}</>;
@@ -221,6 +302,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setLoggingOut(false);
     }
   }
+
+  const navItems = getFilteredNavItems(userRole, userPermissions);
 
   return (
     <div className="min-h-screen bg-[#080A18] flex">

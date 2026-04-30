@@ -43,12 +43,11 @@ export default function CollaborationAdminPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const url = filter !== 'all' ? `/api/admin/collaboration?status=${filter}` : '/api/admin/collaboration';
-    const res = await fetch(url);
+    const res = await fetch('/api/admin/collaboration');
     const data = await res.json();
     setProposals(data.proposals ?? []);
     setLoading(false);
-  }, [filter]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -67,6 +66,8 @@ export default function CollaborationAdminPage() {
     acc[s] = proposals.filter(p => p.status === s).length;
     return acc;
   }, {} as Record<string, number>);
+
+  const filteredProposals = proposals.filter(p => filter === 'all' || p.status === filter);
 
   return (
     <div className="max-w-5xl space-y-6">
@@ -103,11 +104,11 @@ export default function CollaborationAdminPage() {
         <div className="flex items-center justify-center py-16">
           <div className="w-5 h-5 border-2 border-[#C8A75E] border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : proposals.length === 0 ? (
+      ) : filteredProposals.length === 0 ? (
         <div className="text-center py-16 text-[#AAB0D6]">No proposals found</div>
       ) : (
         <div className="space-y-3">
-          {proposals.map(p => (
+          {filteredProposals.map(p => (
             <div key={p.id} className="bg-[#0B0F2A] border border-white/10 rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpanded(expanded === p.id ? null : p.id)}

@@ -40,12 +40,11 @@ export default function PathwayAdminPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const url = filter !== 'all' ? `/api/admin/pathway?status=${filter}` : '/api/admin/pathway';
-    const res = await fetch(url);
+    const res = await fetch('/api/admin/pathway');
     const data = await res.json();
     setApps(data.applications ?? []);
     setLoading(false);
-  }, [filter]);
+  }, []);
 
   useEffect(() => { load(); }, [load]);
 
@@ -59,6 +58,8 @@ export default function PathwayAdminPage() {
     await load();
     setSaving(null);
   }
+
+  const filteredApps = apps.filter(a => filter === 'all' || a.status === filter);
 
   const counts = STATUS_OPTIONS.reduce((acc, s) => {
     acc[s] = apps.filter(a => a.status === s).length;
@@ -100,11 +101,11 @@ export default function PathwayAdminPage() {
         <div className="flex items-center justify-center py-16">
           <div className="w-5 h-5 border-2 border-[#C8A75E] border-t-transparent rounded-full animate-spin" />
         </div>
-      ) : apps.length === 0 ? (
+      ) : filteredApps.length === 0 ? (
         <div className="text-center py-16 text-[#AAB0D6]">No applications found</div>
       ) : (
         <div className="space-y-3">
-          {apps.map(app => (
+          {filteredApps.map(app => (
             <div key={app.id} className="bg-[#0B0F2A] border border-white/10 rounded-xl overflow-hidden">
               <button
                 onClick={() => setExpanded(expanded === app.id ? null : app.id)}

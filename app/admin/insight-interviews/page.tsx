@@ -241,14 +241,12 @@ export default function InterviewApplicationsPage() {
     setLoading(true);
     const params = new URLSearchParams();
     params.set('for', 'applications');
-    if (search.trim()) params.set('search', search.trim());
-    if (statusFilter !== 'all') params.set('status', statusFilter);
     
     const res = await fetch(`/api/admin/cms/insight-interviews?${params}`);
     const data = await res.json();
     setApplications(data.items || []);
     setLoading(false);
-  }, [search, statusFilter]);
+  }, []);
 
   useEffect(() => { fetchApplications(); }, [fetchApplications]);
 
@@ -258,9 +256,18 @@ export default function InterviewApplicationsPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, ...updates, _isApplication: true }),
     });
-    setApplications((prev) => prev.map((a) => a.id === id ? { ...a, ...updates } : a));
+    await fetchApplications();
     if (selected?.id === id) setSelected((prev) => prev ? { ...prev, ...updates } : null);
   }
+
+  const filteredApplications = applications.filter(a => {
+    if (statusFilter !== 'all' && a.status !== statusFilter) return false;
+    if (search.trim()) {
+      const s = search.trim().toLowerCase();
+      return a.name.toLowerCase().includes(s) || a.email.toLowerCase().includes(s);
+    }
+    return true;
+  });
 
   const counts = {
     total: applications.length,
@@ -344,11 +351,11 @@ export default function InterviewApplicationsPage() {
           <div className="flex items-center justify-center py-20">
             <Loader2 className="w-6 h-6 text-[#C8A75E] animate-spin" />
           </div>
-        ) : applications.length === 0 ? (
-          <div className="text-center py-16 text-[#AAB0D6]/30 text-sm">No applications found.</div>
+        ) : filteredApplications.length === 0 ? (
+          <div className="text-center py-12 text-[#AAB0D6]">No applications found</div>
         ) : (
-          <div className="space-y-2">
-            {applications.map((app) => {
+          <div className="divide-y divide-white/5">
+            {filteredApplications.map((app) => {
               const isExpanded = expanded === app.id;
               return (
                 <div

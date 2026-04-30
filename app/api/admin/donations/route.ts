@@ -2,9 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { proxyToMainApp, getCookieHeader } from '@/lib/api-proxy';
 import { getAdminTokenFromRequest } from '@/lib/auth';
 
-export async function GET(req: NextRequest) {
+function checkFinanceAccess(req: NextRequest) {
   const admin = getAdminTokenFromRequest(req);
-  if (!admin) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+  if (!admin) return null;
+  if (admin.role !== 'admin' && admin.role !== 'finance_handler') return null;
+  return admin;
+}
+
+export async function GET(req: NextRequest) {
+  if (!checkFinanceAccess(req)) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
   const cookieHeader = getCookieHeader(req);
   const result = await proxyToMainApp('/api/admin/donations', {
@@ -16,8 +22,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const admin = getAdminTokenFromRequest(req);
-  if (!admin) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
+  if (!checkFinanceAccess(req)) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
 
   const cookieHeader = getCookieHeader(req);
   const body = await req.text();

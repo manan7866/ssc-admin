@@ -1,21 +1,29 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { proxyToMainApp, getCookieHeader } from '@/lib/api-proxy';
+import { getAdminTokenFromRequest } from '@/lib/auth';
+
+function checkAppAccess(req: NextRequest, page: string) {
+  const admin = getAdminTokenFromRequest(req);
+  if (!admin) return false;
+  if (admin.role === 'admin') return true;
+  if (admin.role === 'application_handler' && admin.permissions?.includes(page)) return true;
+  return false;
+}
 
 export async function GET(req: NextRequest) {
-  const cookieHeader = getCookieHeader(req);
-  console.log('[membership GET] Cookies:', cookieHeader ? 'present' : 'missing');
+  if (!checkAppAccess(req, 'membership')) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   
+  const cookieHeader = getCookieHeader(req);
   const result = await proxyToMainApp('/api/admin/membership', {
     method: 'GET',
     cookie: cookieHeader,
   });
 
-  console.log('[membership GET] Response:', result.status, result.data ? 'has data' : 'no data');
-
   return NextResponse.json(result.data, { status: result.status });
 }
 
 export async function PATCH(req: NextRequest) {
+  if (!checkAppAccess(req, 'membership')) return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 });
   const cookieHeader = getCookieHeader(req);
   const body = await req.text();
   

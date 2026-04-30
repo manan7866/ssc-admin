@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     // Set cookie and redirect
     const res = NextResponse.redirect(new URL(safeRedirect, process.env.NEXT_PUBLIC_ADMIN_URL));
-    const cookieValue = `admin_token=${token}; Path=/; Max-Age=86400; SameSite=Strict`;
+    const cookieValue = `admin_token=${token}; Path=/; Max-Age=86400; SameSite=Lax`;
     console.log('[login-form] Setting cookie:', cookieValue.substring(0, 50) + '...');
     res.headers.set('Set-Cookie', cookieValue);
     console.log('[login-form] Set-Cookie header set:', res.headers.getSetCookie ? res.headers.getSetCookie() : res.headers.get('Set-Cookie'));

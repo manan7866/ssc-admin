@@ -101,7 +101,7 @@ export default function ConferenceEventsAdminPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const res = await fetch('/api/admin/cms/conference');
+    const res = await fetch('/api/admin/conference-event');
     const data = await res.json();
     setEvents(data.items || []);
     setLoading(false);
@@ -153,7 +153,7 @@ export default function ConferenceEventsAdminPage() {
       status: form.status ?? 'draft',
     };
 
-    await fetch('/api/admin/cms/conference', {
+    await fetch('/api/admin/conference-event', {
       method: editing ? 'PATCH' : 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(editing ? { id: editing.id, ...payload } : payload),
@@ -166,7 +166,7 @@ export default function ConferenceEventsAdminPage() {
   async function handleDelete(id: string) {
     if (!confirm('Archive this conference event?')) return;
     setDeleting(id);
-    await fetch('/api/admin/cms/conference', {
+    await fetch('/api/admin/conference-event', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id, status: 'archived' }),
@@ -176,7 +176,7 @@ export default function ConferenceEventsAdminPage() {
   }
 
   async function toggleActive(ev: ConferenceEvent) {
-    await fetch('/api/admin/cms/conference', {
+    await fetch('/api/admin/conference-event', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: ev.id, is_active: !ev.is_active }),

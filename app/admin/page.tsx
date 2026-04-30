@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Users, Heart, FileText, UserCheck, Route, BookOpen, Building2, ScrollText, Star, TrendingUp, Clock, CircleAlert as AlertCircle, ArrowRight, MessageSquare, Shield, CircleCheck as CheckCircle, ChartBar as BarChart3, Activity } from 'lucide-react';
 
@@ -76,17 +77,20 @@ export default function AdminDashboard() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     fetch('/api/admin/dashboard', { credentials: 'include' })
       .then(res => {
         if (!res.ok) {
           console.error('Dashboard API failed:', res.status);
-          return { modules: [], totalDonations: 0, donationCount: 0, totalUsers: 0, recentActivity: [] };
+          return { modules: [], totalDonations: 0, donationCount: 0, totalUsers: 0, recentActivity: [], userRole: '' };
         }
         return res.json();
       })
       .then(data => {
+        if (data.userRole) setUserRole(data.userRole);
         if (data.modules) setModules(data.modules);
         if (data.totalDonations !== undefined) setTotalDonations(data.totalDonations);
         if (data.donationCount !== undefined) setDonationCount(data.donationCount);
@@ -95,6 +99,31 @@ export default function AdminDashboard() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (userRole && userRole !== 'admin') {
+      const roleRedirects: Record<string, string> = {
+        application_handler: '/admin/membership',
+        finance_handler: '/admin/donations',
+        cms_handler: '/admin/cms/saints',
+      };
+      if (roleRedirects[userRole]) {
+        router.replace(roleRedirects[userRole]);
+      }
+    }
+  }, [userRole, router]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-5 h-5 border-2 border-[#C8A75E] border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (userRole && userRole !== 'admin') {
+    return null;
+  }
 
   const totalPending = modules.reduce((s, m) => s + m.pending, 0);
   const totalApplications = modules.reduce((s, m) => s + m.value, 0);

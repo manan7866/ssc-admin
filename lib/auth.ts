@@ -1,18 +1,23 @@
 import jwt from 'jsonwebtoken';
 import { NextRequest } from 'next/server';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'ssc-jwt-secret-2026-change-this';
+const JWT_SECRET = process.env.JWT_SECRET || 'ssc-admin-jwt-secret-2026-change-in-production';
 
 export interface AdminTokenPayload {
   adminId: string;
   email: string;
   role: string;
+  permissions?: string[];
 }
 
 export function verifyAdminToken(token: string): AdminTokenPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET) as AdminTokenPayload;
-  } catch {
+    const secret = process.env.JWT_SECRET || 'ssc-admin-jwt-secret-2026-change-in-production';
+    console.log('[verifyAdminToken] Using secret:', secret.substring(0, 10) + '...');
+    console.log('[verifyAdminToken] Token:', token.substring(0, 30) + '...');
+    return jwt.verify(token, secret) as AdminTokenPayload;
+  } catch (e) {
+    console.error('[verifyAdminToken] Failed:', e instanceof Error ? e.message : String(e));
     return null;
   }
 }
