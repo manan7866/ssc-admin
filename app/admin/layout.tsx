@@ -32,6 +32,7 @@ import {
   Compass,
   AlertTriangle,
   Mic,
+  Mail,
 } from 'lucide-react';
 
 interface NavItem {
@@ -99,6 +100,11 @@ const ALL_NAV_ITEMS: NavItem[] = [
     label: 'Reflections',
     href: '/admin/reflections',
     icon: <ScrollText size={16} />,
+  },
+  {
+    label: 'Contact Submissions',
+    href: '/admin/contact-submissions',
+    icon: <Mail size={16} />,
   },
   {
     label: 'Support Tickets',

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Users, Heart, FileText, UserCheck, Route, BookOpen, Building2, ScrollText, Star, TrendingUp, Clock, CircleAlert as AlertCircle, ArrowRight, MessageSquare, Shield, CircleCheck as CheckCircle, ChartBar as BarChart3, Activity } from 'lucide-react';
+import { Users, Heart, FileText, UserCheck, Route, BookOpen, Building2, ScrollText, Star, TrendingUp, Clock, CircleAlert as AlertCircle, ArrowRight, MessageSquare, Shield, CircleCheck as CheckCircle, ChartBar as BarChart3, Activity, Mail } from 'lucide-react';
 
 interface ModuleMetric {
   label: string;
@@ -30,6 +30,7 @@ const MODULE_ICONS: Record<string, React.ReactNode> = {
   'Mentorship': <BookOpen size={18} />,
   'Collaboration': <Building2 size={18} />,
   'Conference': <ScrollText size={18} />,
+  'Contact': <Mail size={18} />,
 };
 
 const CMS_LINKS = [
