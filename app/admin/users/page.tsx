@@ -34,6 +34,7 @@ const APPLICATION_PERMISSIONS = [
   { value: 'collaboration', label: 'Collaboration' },
   { value: 'conference', label: 'Conference' },
   { value: 'conference-event', label: 'Conference Event' },
+  { value: 'contributions', label: 'Contributions' },
 ];
 
 interface AdminUser {

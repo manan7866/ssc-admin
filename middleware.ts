@@ -44,7 +44,7 @@ export function middleware(req: NextRequest) {
   }
 
   if (payload.role === 'application_handler') {
-    const allowedPages = ['membership', 'volunteer', 'mentorship', 'collaboration', 'conference', 'conference-event'];
+    const allowedPages = ['membership', 'volunteer', 'mentorship', 'collaboration', 'conference', 'conference-event', 'contributions'];
     const pageMap: Record<string, string> = {
       '/admin/membership': 'membership',
       '/admin/volunteer': 'volunteer',
@@ -52,6 +52,7 @@ export function middleware(req: NextRequest) {
       '/admin/collaboration': 'collaboration',
       '/admin/conference': 'conference',
       '/admin/conference-event': 'conference-event',
+      '/admin/contributions': 'contributions',
     };
 
     for (const [prefix, perm] of Object.entries(pageMap)) {
@@ -63,7 +64,7 @@ export function middleware(req: NextRequest) {
       }
     }
 
-    const allowedPrefixes = ['/admin/membership', '/admin/volunteer', '/admin/mentorship', '/admin/collaboration', '/admin/conference', '/admin/conference-event', '/admin'];
+    const allowedPrefixes = ['/admin/membership', '/admin/volunteer', '/admin/mentorship', '/admin/collaboration', '/admin/conference', '/admin/conference-event', '/admin/contributions', '/admin'];
     const isAllowed = allowedPrefixes.some(p => pathname === p || pathname.startsWith(p));
     if (!isAllowed) {
       return NextResponse.redirect(new URL('/admin/unauthorized', ADMIN_URL));

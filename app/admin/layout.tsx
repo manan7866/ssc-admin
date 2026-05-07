@@ -60,6 +60,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
       { label: 'Conference', href: '/admin/conference', icon: <ScrollText size={16} /> },
       { label: 'Insight Interviews', href: '/admin/insight-interviews', icon: <Mic size={16} /> },
       { label: 'Conference Events', href: '/admin/conference-event', icon: <CalendarDays size={16} /> },
+      { label: 'Contributions', href: '/admin/contributions', icon: <FileText size={16} /> },
     ],
   },
   {
@@ -127,6 +128,7 @@ const APPLICATION_PAGE_KEYS: Record<string, string> = {
   '/admin/conference': 'conference',
   '/admin/insight-interviews': 'insight-interviews',
   '/admin/conference-event': 'conference-event',
+  '/admin/contributions': 'contributions',
 };
 
 function getFilteredNavItems(role: string, permissions: string[]): NavItem[] {
