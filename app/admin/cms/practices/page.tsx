@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Sparkles, Plus, Search, Edit2, Trash2, X, Save, RefreshCw, Upload, Download, CircleAlert as AlertCircle, CircleCheck as CheckCircle2, Loader as Loader2, FileText } from 'lucide-react';
+import { Sparkles, Plus, Search, Edit2, Trash2, X, Save, RefreshCw, Upload, Download, CircleAlert as AlertCircle, CircleCheck as CheckCircle2, Loader as Loader2, FileText, BadgeCheck } from 'lucide-react';
 
 interface Practice {
   id: string;
@@ -19,6 +19,9 @@ interface Practice {
   tradition_source: string | null;
   video_url: string | null;
   audio_url: string | null;
+  status: string;
+  submitter_name: string | null;
+  submitter_email: string | null;
 }
 
 interface BulkRow {
@@ -39,6 +42,7 @@ const emptyForm = (): Partial<Practice> => ({
   name: '', slug: '', description: '', category: '', display_order: 0,
   difficulty_level: '', duration_minutes: null, instructions: '', benefits: [],
   prerequisites: [], tradition_source: '', video_url: '', audio_url: '',
+  status: 'draft',
 });
 
 const CSV_HEADERS = ['name', 'slug', 'description', 'category', 'display_order'];
@@ -240,26 +244,49 @@ export default function PracticesAdminPage() {
               <tr className="border-b border-white/10">
                 <th className="px-4 py-3 text-left text-xs font-medium text-[#AAB0D6] uppercase tracking-wider">Name</th>
                 <th className="px-4 py-3 text-left text-xs font-medium text-[#AAB0D6] uppercase tracking-wider hidden md:table-cell">Category</th>
-                <th className="px-4 py-3 text-left text-xs font-medium text-[#AAB0D6] uppercase tracking-wider hidden lg:table-cell">Order</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#AAB0D6] uppercase tracking-wider hidden lg:table-cell">Status</th>
                 <th className="px-4 py-3 text-right text-xs font-medium text-[#AAB0D6] uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {items.length === 0 && (
-                <tr><td colSpan={4} className="px-4 py-10 text-center text-[#AAB0D6]">No practices found</td></tr>
+                <tr><td colSpan={5} className="px-4 py-10 text-center text-[#AAB0D6]">No practices found</td></tr>
               )}
               {items.map(item => (
                 <tr key={item.id} className="hover:bg-white/3 transition-colors">
                   <td className="px-4 py-3">
                     <div className="text-[#F5F3EE] font-medium">{item.name}</div>
                     {item.description && <div className="text-[#AAB0D6] text-xs mt-0.5 line-clamp-1">{item.description}</div>}
+                    {item.submitter_name && (
+                      <div className="text-[#AAB0D6]/40 text-[10px] mt-0.5">Submitted by: {item.submitter_name}</div>
+                    )}
                   </td>
                   <td className="px-4 py-3 hidden md:table-cell text-[#AAB0D6]">
                     {item.category && <span className="px-2 py-0.5 rounded-full text-xs bg-white/5 text-[#AAB0D6]">{item.category}</span>}
                   </td>
-                  <td className="px-4 py-3 hidden lg:table-cell text-[#AAB0D6] text-xs">{item.display_order}</td>
+                  <td className="px-4 py-3 hidden lg:table-cell">
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
+                      item.status === 'approved'
+                        ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20'
+                        : 'bg-amber-500/10 text-amber-400 border-amber-500/20'
+                    }`}>
+                      {item.status || 'draft'}
+                    </span>
+                  </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-2">
+                      {item.status !== 'approved' && (
+                        <button onClick={async () => {
+                          await fetch('/api/admin/cms/practices', {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ id: item.id, status: 'approved' }),
+                          });
+                          await load(page);
+                        }} className="p-1.5 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 rounded-lg transition-colors" title="Set Approved">
+                          <BadgeCheck size={13} />
+                        </button>
+                      )}
                       <button onClick={() => openEdit(item)} className="p-1.5 text-[#AAB0D6] hover:text-[#C8A75E] hover:bg-white/5 rounded-lg transition-colors">
                         <Edit2 size={13} />
                       </button>

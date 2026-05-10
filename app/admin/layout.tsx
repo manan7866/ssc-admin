@@ -85,6 +85,7 @@ const ALL_NAV_ITEMS: NavItem[] = [
       { label: 'Inner Development', href: '/admin/cms/stages', icon: <TrendingUp size={16} />, children: [
         { label: 'Stages', href: '/admin/cms/stages', icon: <TrendingUp size={16} /> },
         { label: 'Practices', href: '/admin/cms/practices', icon: <Sparkles size={16} /> },
+        { label: 'Wazeefia Submissions', href: '/admin/cms/wazifa-submissions', icon: <FileText size={16} /> },
         { label: 'Emotional Intelligence', href: '/admin/cms/emotional', icon: <Heart size={16} /> },
         { label: 'Pathways', href: '/admin/cms/guidance', icon: <Compass size={16} /> },
         { label: 'Study Circles', href: '/admin/cms/circles', icon: <Users size={16} /> },
@@ -328,7 +329,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         }`}
       >
         <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-          <Link href="/" className="flex items-center gap-2.5 group" title="Back to website">
+          <Link href="https://sufisciencecenter.info/" className="flex items-center gap-2.5 group" title="Back to website">
             <img src="/SSC_LOGO_UPDATED.png" alt="SSC Logo" className="h-8 w-auto opacity-90 group-hover:opacity-100 transition-opacity" />
             <div>
               <div className="text-[#C8A75E] font-semibold text-xs tracking-wide leading-tight group-hover:text-[#D9BB78] transition-colors">SSC Admin</div>
